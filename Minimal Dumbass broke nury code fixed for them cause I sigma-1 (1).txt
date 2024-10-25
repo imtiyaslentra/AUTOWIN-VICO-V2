@@ -12,16 +12,6 @@ local RunService = game:GetService('RunService')
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local TweenService = game:GetService('TweenService')
 
--- Load the DrRay library
-local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
-
--- Create the main window
-local window = DrRayLibrary:Load("Minimal BladeBall Hub", "Default")
-
--- Create tabs
-local combatTab = DrRayLibrary.newTab("Combat", "rbxassetid://17440545793")
-local worldTab = DrRayLibrary.newTab("World", "rbxassetid://17440865331")
-
 local Nurysium_Util = loadstring(game:HttpGet('https://raw.githubusercontent.com/flezzpe/Nurysium/main/nurysium_helper.lua'))()
 
 local local_player = Players.LocalPlayer
@@ -92,67 +82,167 @@ end
 
 --// Thanks nurysium for this.
 function resolve_parry_Remote()
-    for _, value in Services do
-        local temp_remote = value:FindFirstChildOfClass('RemoteEvent')
-
-        if not temp_remote then
-            continue
-        end
-
-        if not temp_remote.Name:find('\n') then
-            continue
-        end
-
-        parry_remote = temp_remote
+    local temp_remote = game:GetService("VirtualUser"):WaitForChild("\n\n\n\n\n")
+    if not temp_remote then
+        print("No RemoteEvent found.") -- Debug: Tidak ada RemoteEvent
+        return
     end
+    if not temp_remote:IsA('RemoteEvent') then
+        print("Found object is not a RemoteEvent.") -- Debug: Bukan RemoteEvent
+        return
+    end
+    originalParryRemote = temp_remote
+    print("RemoteEvent resolved successfully.") -- Debug: RemoteEvent berhasil
 end
+
+resolve_parry_Remote()
 
 function walk_to(position)
     local_player.Character.Humanoid:MoveTo(position)
 end
 
--- UI Elements
-combatTab.newToggle("Attack Aura", "Enables attack aura", false, function(toggled)
-    resolve_parry_Remote()
-    Options.aura_Enabled = toggled
-end)
+-- Menggunakan Fluent sebagai antarmuka GUI baru
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-combatTab.newToggle("AI", "Enables AI", false, function(toggled)
-    resolve_parry_Remote()
-    Options.ai_Enabled = toggled
-end)
+-- Membuat Jendela Utama
+local Window = Fluent:CreateWindow({
+    Title = "Vico Hub!",
+    SubTitle = "Vico Hub is always evolving",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Light",
+})
 
-combatTab.newToggle("Hit Sound", "Enables hit sound", false, function(toggled)
-    Options.hit_sound_Enabled = toggled
-end)
+-- Membuat Tab
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+    Combat = Window:AddTab({ Title = "Combat", Icon = "sword" }),
+    World = Window:AddTab({ Title = "World", Icon = "globe" })
+}
 
-worldTab.newToggle("Hit Effect", "Enables hit effect", false, function(toggled)
-    Options.hit_effect_Enabled = toggled
-end)
+-- Menyimpan Konfigurasi
+local Options = Fluent.Options
 
-worldTab.newToggle("Night Mode", "Enables night mode", false, function(toggled)
-    Options.night_mode_Enabled = toggled
-end)
+-- Pengaturan Toggle dan Callback pada Combat Tab
+Tabs.Combat:AddToggle("AttackAuraToggle", {
+    Title = "Attack Aura",
+    Description = "Enables attack aura",
+    Default = false,
+    Callback = function(toggled)
+        resolve_parry_Remote()
+        Options.aura_Enabled = toggled
+    end
+})
 
-worldTab.newToggle("Trail", "Enables trail effect", false, function(toggled)
-    Options.trail_Enabled = toggled
-end)
+Tabs.Combat:AddToggle("AIToggle", {
+    Title = "AI",
+    Description = "Enables AI",
+    Default = false,
+    Callback = function(toggled)
+        resolve_parry_Remote()
+        Options.ai_Enabled = toggled
+    end
+})
 
-worldTab.newToggle("Self Effect", "Enables self effect", false, function(toggled)
-    Options.self_effect_Enabled = toggled
-end)
+Tabs.Combat:AddToggle("HitSoundToggle", {
+    Title = "Hit Sound",
+    Description = "Enables hit sound",
+    Default = false,
+    Callback = function(toggled)
+        Options.hit_sound_Enabled = toggled
+    end
+})
 
-worldTab.newToggle("Kill Effect", "Enables kill effect", false, function(toggled)
-    Options.kill_effect_Enabled = toggled
-end)
+-- Pengaturan Toggle dan Callback pada World Tab
+Tabs.World:AddToggle("HitEffectToggle", {
+    Title = "Hit Effect",
+    Description = "Enables hit effect",
+    Default = false,
+    Callback = function(toggled)
+        Options.hit_effect_Enabled = toggled
+    end
+})
 
-worldTab.newToggle("Shaders", "Enables shaders effect", false, function(toggled)
-    Options.shaders_effect_Enabled = toggled
-end)
+Tabs.World:AddToggle("NightModeToggle", {
+    Title = "Night Mode",
+    Description = "Enables night mode",
+    Default = false,
+    Callback = function(toggled)
+        Options.night_mode_Enabled = toggled
+    end
+})
 
-worldTab.newToggle("Spectate Ball", "Enables ball spectating", false, function(toggled)
-    Options.spectate_Enabled = toggled
-end)
+Tabs.World:AddToggle("TrailToggle", {
+    Title = "Trail",
+    Description = "Enables trail effect",
+    Default = false,
+    Callback = function(toggled)
+        Options.trail_Enabled = toggled
+    end
+})
+
+Tabs.World:AddToggle("SelfEffectToggle", {
+    Title = "Self Effect",
+    Description = "Enables self effect",
+    Default = false,
+    Callback = function(toggled)
+        Options.self_effect_Enabled = toggled
+    end
+})
+
+Tabs.World:AddToggle("KillEffectToggle", {
+    Title = "Kill Effect",
+    Description = "Enables kill effect",
+    Default = false,
+    Callback = function(toggled)
+        Options.kill_effect_Enabled = toggled
+    end
+})
+
+Tabs.World:AddToggle("ShadersToggle", {
+    Title = "Shaders",
+    Description = "Enables shaders effect",
+    Default = false,
+    Callback = function(toggled)
+        Options.shaders_effect_Enabled = toggled
+    end
+})
+
+Tabs.World:AddToggle("SpectateBallToggle", {
+    Title = "Spectate Ball",
+    Description = "Enables ball spectating",
+    Default = false,
+    Callback = function(toggled)
+        Options.spectate_Enabled = toggled
+    end
+})
+
+-- Menambahkan SaveManager dan InterfaceManager untuk manajemen konfigurasi
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({})
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1) -- Pilih Tab pertama saat jendela dibuka
+
+-- Notifikasi saat GUI telah di-load
+Fluent:Notify({
+    Title = "Vico",
+    Content = "The script has been loaded.",
+    Duration = 8
+})
+
+-- Memuat konfigurasi yang telah disimpan secara otomatis jika ada
+SaveManager:LoadAutoloadConfig()
 
 -- kill effect
 

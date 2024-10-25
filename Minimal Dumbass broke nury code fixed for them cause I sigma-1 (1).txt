@@ -504,7 +504,6 @@ ReplicatedStorage.Remotes.ParrySuccessAll.OnClientEvent:Connect(function()
     end)
 end)
 
-
 task.spawn(function()
     RunService.PreRender:Connect(function()
         if not Options.aura_Enabled then
@@ -515,9 +514,12 @@ task.spawn(function()
             if workspace.Alive:FindFirstChild(closest_Entity.Name) then
                 if aura.is_spamming then
                     if local_player:DistanceFromCharacter(closest_Entity.HumanoidRootPart.Position) <= aura.spam_Range then   
-                        parry_remote:FireServer(
+                        local cf = camera.CFrame
+                        local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+                        
+                        originalParryRemote:FireServer(
                             0.5,
-                            CFrame.new(camera.CFrame.Position, Vector3.zero),
+                            CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
                             {[closest_Entity.Name] = closest_Entity.HumanoidRootPart.Position},
                             {closest_Entity.HumanoidRootPart.Position.X, closest_Entity.HumanoidRootPart.Position.Y},
                             false
@@ -527,6 +529,7 @@ task.spawn(function()
             end
         end
     end)
+end)
 
     RunService.PreRender:Connect(function()
         if not Options.aura_Enabled then
@@ -615,18 +618,17 @@ task.spawn(function()
         end)
 
         if ball_Distance <= aura.parry_Range and not aura.is_ball_Warping and ball_Dot > -0.1 then
-    -- Panggil FireServer dengan parameter yang benar
     local cf = camera.CFrame
     local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
     
-    -- Mengirim CFrame dan data posisi entity ke server
     originalParryRemote:FireServer(
         0,
         CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
-        { [closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position },
-        { closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y }
+        {[closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position},
+        {closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y}
     )
 end
+
             aura.can_parry = false
             aura.hit_Time = tick()
             aura.hit_Count += 1

@@ -64,7 +64,6 @@ local function get_closest_entity(Object: Part)
                     closest_Entity = entity
                     max_distance = distance
                 end
-
             end
         end
 
@@ -94,8 +93,6 @@ function resolve_parry_Remote()
     originalParryRemote = temp_remote
     print("RemoteEvent resolved successfully.") -- Debug: RemoteEvent berhasil
 end
-
-resolve_parry_Remote()
 
 function walk_to(position)
     local_player.Character.Humanoid:MoveTo(position)

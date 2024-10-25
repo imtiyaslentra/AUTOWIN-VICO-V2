@@ -1,9 +1,9 @@
 -- // FIXED BY MJC3821/RICE
 --// minimal recode + ui redo by rice
 local version = '0.0.5'
-print("Minimal BladeBall Hub \n https://discord.gg/minimal")
+print("VicoHub - Blade Ball")
 print(version)
-setfpscap(999)
+setfpscap(120)
 
 -- Services
 local Stats = game:GetService('Stats')
@@ -21,7 +21,7 @@ local nurysium_Data = nil
 local hit_Sound = nil
 
 local closest_Entity = nil
-local parry_remote = nil
+local originalParryRemote = nil
 
 local Options = {}
 
@@ -615,14 +615,18 @@ task.spawn(function()
         end)
 
         if ball_Distance <= aura.parry_Range and not aura.is_ball_Warping and ball_Dot > -0.1 then
-            parry_remote:FireServer(
-                0.5,
-                CFrame.new(camera.CFrame.Position, Vector3.new(math.random(-1000, 1000), math.random(0, 1000), math.random(100, 1000))),
-                {[closest_Entity.Name] = target_Position},
-                {target_Position.X, target_Position.Y},
-                false
-            )
-
+    -- Panggil FireServer dengan parameter yang benar
+    local cf = camera.CFrame
+    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = cf:GetComponents()
+    
+    -- Mengirim CFrame dan data posisi entity ke server
+    originalParryRemote:FireServer(
+        0,
+        CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22),
+        { [closest_Entity_To_mouse.Name] = closest_Entity_To_mouse.HumanoidRootPart.Position },
+        { closest_Entity_To_mouse.HumanoidRootPart.Position.X, closest_Entity_To_mouse.HumanoidRootPart.Position.Y }
+    )
+end
             aura.can_parry = false
             aura.hit_Time = tick()
             aura.hit_Count += 1
